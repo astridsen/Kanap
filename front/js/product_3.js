@@ -1,17 +1,13 @@
-// 
-const productColors = [];
-
 //Récupération de l'ID dans l'url
 const url = new URL(window.location.href);
-const searchId = url.searchParams.get('id');
+const searchId = url.searchParams.get("id");
 
 const getProductIdFromUrl = (UrlId) => {
-	if (searchId === null) {
-    return Promise.reject(newError('Echec de récupération id produit depuis URL'));
-  }
-      
-  return Promise.resolve(searchId);
-};
+    return new Promise((resolve, reject) => {
+        resolve(searchId);
+        reject(newError('Echec de récupération id produit depuis URL'));
+    });
+}
 
 //Lien entre l'ID récupéré dans l'URL et les informations de l'API
 const getProductFromApi = (productId) => getJsonFromApi(`http://localhost:3000/api/products/${productId}`);
@@ -46,20 +42,12 @@ const displayProduct = (product) => {
     productDescription.textContent = product.description;
 
     // Affichage des couleurs
-  	const _productColors = document.querySelector("#colors");
-    for (let color of product.colors) {
-			_productColors.appendChild(createOption(color));
-      
-      productColors.push(colors);  
+    for (let colors of product.colors){
+        const productColors = document.createElement("option");
+        document.querySelector("#colors").appendChild(productColors);
+        productColors.value = colors;
+        productColors.textContent = colors;
     }
-}
-
-const createOption = (value) => {
-  const _option = document.createElement('option');
-  _option.value = value;
-  _option.textContent = value;
-
-	return _option;
 }
 
 const createImage = (src, alt) => {
@@ -85,21 +73,13 @@ const addToCart = document.querySelector("#addToCart");
 const color = document.querySelector("#colors");
 const quantity = document.querySelector("#quantity");
 
-const errorColor = (color) => {
-    alert("La couleur que vous avez sélectionnée " + color + " est invalide. Veuillez sélectionner une couleur valide!");
+const errorColor = (err) => {
+    alert("Veuillez sélectionner une couleur");
 }
 
-const errorQuantity = (quantity) => {
-    alert("Veuillez sélectionner une quantité pour ce produit comprise entre 1 et 100. Vous aviez choisi " + quantity);
+const errorQuantity = (err) => {
+    alert("Veuillez sélectionner une quantité pour ce produit comprise entre 1 et 100");
 }
-
-const validateColor = (color) => {
-  return productColors.indexOf(color) >= -1;
-};
-
-const validateQuantity = (quantity) => {
-  return quantity <= 100 && quantity > 0;
-}  
 
 addToCart.addEventListener('click', () => {  
     const product = {
@@ -107,10 +87,10 @@ addToCart.addEventListener('click', () => {
         color: color.value,
         quantity: quantity.value,
     }        
-    if (!validateColor(product.color) || product.color === "") {
-        return errorColor(product.color);
+    if (product.color === "") {
+        return errorColor(color);
     } 
-    if (!validateQuantity(product.quantity)) {
+    if (product.quantity > 100 || product.quantity <= 0) {
         return errorQuantity(product.quantity);
     }
     addBasket(product);
