@@ -6,7 +6,7 @@ const url = new URL(window.location.href);
 const searchId = url.searchParams.get('id');
 
 const getProductIdFromUrl = (UrlId) => {
-	if (searchId === null) {
+  if (searchId === null) {
     return Promise.reject(newError('Echec de récupération id produit depuis URL'));
   }
       
@@ -46,9 +46,9 @@ const displayProduct = (product) => {
     productDescription.textContent = product.description;
 
     // Affichage des couleurs
-  	const _productColors = document.querySelector("#colors");
+    const _productColors = document.querySelector("#colors");
     for (let color of product.colors) {
-			_productColors.appendChild(createOption(color));
+      _productColors.appendChild(createOption(color));
       
       productColors.push(colors);  
     }
@@ -59,7 +59,7 @@ const createOption = (value) => {
   _option.value = value;
   _option.textContent = value;
 
-	return _option;
+  return _option;
 }
 
 const createImage = (src, alt) => {
@@ -105,7 +105,7 @@ addToCart.addEventListener('click', () => {
     const product = {
         id: searchId,
         color: color.value,
-        quantity: quantity.value,
+        quantity: parseInt(quantity.value, 10),
     }        
     if (!validateColor(product.color) || product.color === "") {
         return errorColor(product.color);
@@ -113,5 +113,91 @@ addToCart.addEventListener('click', () => {
     if (!validateQuantity(product.quantity)) {
         return errorQuantity(product.quantity);
     }
-    addBasket(product);
+    addToBasket(product);
 });
+
+const BASKET_KEY = 'basket';
+
+const addToBasket = (product) => {
+  if (isProductInBasket(product)) {
+    return updateProductQuantity(product, product.quantity);
+  }
+
+  return persistProductInBasket(product);
+};
+
+const removeFromBasket = (product) => {
+  if (!isProductInBasket(product)) {
+    return;
+  }
+  
+  return removeProductFromBasket(product);
+}
+
+const isProductInBasket = (product) => {
+  return typeof(getProductFromBasket(product)) !== 'undefined';
+};
+
+const getProductFromBasket = (product) => {
+  const basket = getBasket();
+  return basket.find(p => p.id === product.id && p.color === product.color);
+};
+
+const updateProductQuantity = (product, quantity) => {
+  if (!isProductInBasket(product)) {
+    return;
+  }
+  
+  const basketProduct = getProductFromBasket(product);
+  basketProduct.quantity += parseInt(quantity, 10);
+  
+  persistProductInBasket(basketProduct);
+};
+
+const removeProductFromBasket = (product) => {
+  const basket = getBasketWithoutProduct(product);
+
+  saveBasket(basket);
+};
+
+const getBasketWithoutProduct = (product) => {
+  return getBasket().filter((p) => p.id !== product.id || p.color !== product.color);
+};
+
+const getBasket = () => {
+  let basket = localStorage.getItem(BASKET_KEY);
+  
+  if (basket === null) {
+    basket = [];
+    saveBasket(basket);
+  }
+  
+  return JSON.parse(basket);
+};
+
+const saveBasket = (basket) => {
+  localStorage.setItem(BASKET_KEY, JSON.stringify(basket));
+};
+
+const persistProductInBasket = (product) => {
+  const basket = getBasketWithoutProduct(product);
+  basket.push(product);  
+  
+  saveBasket(basket);
+};
+
+const getTotalNumberOfProducts = () => {
+  let total = 0;
+  for (let product of basket) {
+      total += product.quantity;
+  }
+  return total;
+};
+
+const getTotalPrice = () => {
+  let total = 0;
+  for (let product of basket) {
+      total += product.quantity * product.price;
+  }
+  return total
+};

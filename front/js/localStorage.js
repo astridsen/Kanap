@@ -1,62 +1,85 @@
-function saveBasket(basket) {
-    localStorage.setItem("basket", JSON.stringify(basket));
+const BASKET_KEY = 'basket';
+
+const addToBasket = (product) => {
+  if (isProductInBasket(product)) {
+    return updateProductQuantity(product, product.quantity);
+  }
+
+  return persistProductInBasket(product);
+};
+
+const removeFromBasket = (product) => {
+  if (!isProductInBasket(product)) {
+    return;
+  }
+  
+  return removeProductFromBasket(product);
 }
 
-function getBasket() {
-    let basket = localStorage.getItem("basket");
-    if (basket == null) {
-        return [];
-    }else{
-        return JSON.parse(basket);
-    }
-}
+const isProductInBasket = (product) => {
+  return typeof(getProductFromBasket(product)) !== 'undefined';
+};
 
-function addBasket(product) {
-    let basket = [getBasket()];
-    let foundProduct = basket.find(p => p.id === product.id && p.color === product.color);
-    if (foundProduct != undefined) {
-        product.quantity = Number(foundProduct.quantity) + Number(quantity.value);
-    } else {
-        product.quantity = quantity.value;
-        basket.push(product);
-    }
-    saveBasket(product);
-}
+const getProductFromBasket = (product) => {
+  const basket = getBasket();
+  return basket.find(p => p.id === product.id && p.color === product.color);
+};
 
-function removeFromBasket(product){
-    let basket = getBasket();
-    basket = basket.filter(p => p.id != product.id);
+const updateProductQuantity = (product, quantity) => {
+  if (!isProductInBasket(product)) {
+    return;
+  }
+  
+  const basketProduct = getProductFromBasket(product);
+  basketProduct.quantity += parseInt(quantity, 10);
+  
+  persistProductInBasket(basketProduct);
+};
+
+const removeProductFromBasket = (product) => {
+  const basket = getBasketWithoutProduct(product);
+
+  saveBasket(basket);
+};
+
+const getBasketWithoutProduct = (product) => {
+  return getBasket().filter((p) => p.id !== product.id || p.color !== product.color);
+};
+
+const getBasket = () => {
+  let basket = localStorage.getItem(BASKET_KEY);
+  
+  if (basket === null) {
+    basket = [];
     saveBasket(basket);
-}
+  }
+  
+  return JSON.parse(basket);
+};
 
-function changeQuantity(product, quantity) {
-    let basket = getBasket();
-    let foundProduct = basket.find(p => p.id == product.id);
-    if (foundProduct != undefined) {
-        foundProduct.quantity += quantity;
-        if (foundProduct.quantity <= 0) {
-            removeFromBasket(product);
-        } else {
-            saveBasket(basket);
-        }
-    }
-    
-}
+const saveBasket = (basket) => {
+  localStorage.setItem(BASKET_KEY, JSON.stringify(basket));
+};
 
-function getNumberProduct() {
-    let basket = getBasket();
-    let number = 0;
-    for (let product of basket) {
-        number += product.quantity;
-    }
-    return number;
-}
+const persistProductInBasket = (product) => {
+  const basket = getBasketWithoutProduct(product);
+  basket.push(product);  
+  
+  saveBasket(basket);
+};
 
-function getTotalPrice() {
-    let basket = getBasket();
-    let total = 0;
-    for (let product of basket) {
-        total += product.quantity * product.price;
-    }
-    return total;
-}
+const getTotalNumberOfProducts = () => {
+  let total = 0;
+  for (let product of basket) {
+      total += product.quantity;
+  }
+  return total;
+};
+
+const getTotalPrice = () => {
+  let total = 0;
+  for (let product of basket) {
+      total += product.quantity * product.price;
+  }
+  return total
+};
