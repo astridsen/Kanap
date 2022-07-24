@@ -1,61 +1,32 @@
-productLocalStorage = JSON.parse(localStorage.getItem("basket"));
-let cart = document.getElementById("cart__items");
+basket = JSON.parse(localStorage.getItem("basket"));
+let _cart = document.getElementById("cart__items");
 let productListFiltred = [];
 
 // recuperer tt les produits avec fetch 
 // Filtrer la liste des produits pour garder juste les produits qu'on a sur le localstorage
-function getProducts() {
-  fetch(`http://localhost:3000/api/products/`)
-    .then(function (res) {
-      if (res.ok) {
+const getProductsFromApi = () => {
+   return fetch("http://localhost:3000/api/products")
+      .then((res) => {
+       if (!res.ok) {
+         throw new Error('Error retrieving products!');
+       }
         return res.json();
-      }
-    })
-    .then(function (listProduct) {
+     })
+};
 
-      let list = listProduct;
-      if (productLocalStorage && productLocalStorage.length) {
-        let productBasket = productLocalStorage.map(product => product.id);// Recupérartion des ID du local Storage
-
-
-
-        productListFiltred = list.filter(el => productBasket.includes(el._id));//Filtrer les produit de l'api en fonction de ceux present ds le LS
-        
-        getCart(productListFiltred);
-        modifyQuantity();
-        deleteArticle();
-        getTotals();
-
-      }else {
-        let emptyBasket = document.createElement("p");
-        emptyBasket.innerText="Votre Panier est vide";
-        cart.appendChild(emptyBasket);
-      }
-
-
-    })
-
-    .catch(function (err) {
-      console.log("api error", err);
-    })
+const displayError = () => {
+   console.log("Impossible de récupérer les données du panier")
 }
 
-
-getProducts();
-function getCart(productList) {
-
-  // si le panier est vide
- 
-  // on crée les éléments manquants dans le local storage
-
-    for (let product in productLocalStorage) {
-      const currentProduct = productList.find(p => p._id === productLocalStorage[product].id);
+const getCart = (productList) => {
+   for (let product in basket) {
+      const currentProduct = productList.find(p => p._id === basket[product].id);
       //creation de l'article
 
       let article = document.createElement("article");
       document.querySelector("#cart__items").appendChild(article);
       article.className = "cart__item";
-      article.setAttribute("data-id", productLocalStorage[product].id);
+      article.setAttribute("data-id", basket[product].id);
 
       // Ajout de la div "cart__item__img"
       let productDiv = document.createElement("div");
@@ -87,13 +58,12 @@ function getCart(productList) {
       // Ajout de la couleur
       let productColor = document.createElement("p");
       productTitle.appendChild(productColor);
-      productColor.innerHTML = productLocalStorage[product].color;
+      productColor.innerHTML = basket[product].color;
 
 
       // Ajout du prix
       let productPrice = document.createElement("p");
       itemContentTitlePrice.appendChild(productPrice);
-      // const currentProduct = productList.find(p => p._id === productLocalStorage[product].id);
       productPrice.classList = "product__price"
       productPrice.innerHTML = currentProduct.price + " €";
 
@@ -115,7 +85,7 @@ function getCart(productList) {
       // Ajout de la quantité
       let productQuantity = document.createElement("input");
       itemContentSettingsQuantity.appendChild(productQuantity);
-      productQuantity.value = productLocalStorage[product].quantity;
+      productQuantity.value = basket[product].quantity;
       productQuantity.className = "itemQuantity";
       productQuantity.setAttribute("type", "number");
       productQuantity.setAttribute("min", "1");
@@ -133,4 +103,142 @@ function getCart(productList) {
       productDelete.className = "deleteItem";
       productDelete.innerHTML = "Supprimer";
     }
-  }
+}
+
+
+const getTotalNumberOfProducts = () => {
+   let totalQuantity = 0;
+   for (let product of basket) {
+       totalQuantity += product.quantity;
+   }
+   return totalQuantity;
+};
+  
+const displayTotalQuantity = () => {
+   let totalProductsQuantity = document.querySelector("#totalQuantity");
+   totalProductsQuantity.textContent = getTotalNumberOfProducts();
+}
+
+const getTotalPrice = () => {
+   getProductsFromApi();
+   let totalPrice = 0;
+   for (let product of basket) {
+      totalPrice += parseInt(product.quantity) * parseInt(product.price);
+   }
+   return totalPrice
+}
+
+const displayTotalPrice = () => {
+   let productTotalPrice = document.querySelector("#totalPrice");
+   productTotalPrice.textContent = getTotalPrice()
+}
+
+function getTotals() {
+   displayTotalQuantity();
+   displayTotalPrice();
+}
+
+ /** On récupère la quantité totale
+   let elementsQuantity = document.getElementsByClassName('itemQuantity');
+   let myLength = elementsQuantity.length;
+   totalQuantity = 0;
+   //(expression initiale, condition, incrémentation)
+   for (let i = 0; i < myLength; i++) {
+     totalQuantity += elementsQuantity[i].valueAsNumber;
+   }
+ 
+   let totalQuantity = document.getElementById('totalQuantity');
+   totalQuantity.innerHTML = totalQuantity;
+ 
+ 
+   // On récupère le prix total
+   let elementPrice = document.getElementsByClassName("product__price");
+   
+   totalPrice = 0;
+   for (let i = 0; i < myLength; i++) {
+     let price = parseInt(elementPrice[i].innerHTML.split(" €")[0]);
+     totalPrice += (elementsQuantity[i].valueAsNumber * price);
+     
+   }
+ 
+   let productTotalPrice = document.getElementById('totalPrice');
+   productTotalPrice.innerHTML = totalPrice;
+ 
+}*/
+ 
+ 
+ // On modifie la quantité d'un produit dans le panier
+ 
+ 
+ 
+ function modifyQuantity() {
+ 
+   let itemModif = document.querySelectorAll(".itemQuantity");
+ 
+ 
+   for (let j = 0; j < itemModif.length; j++) {
+     itemModif[j].addEventListener("change", (event) => {
+       event.preventDefault()
+       //Je selectionne l'élément à modifier selon son Id et sa couleur
+       let itemNew = basket[j].quantity;
+       let itemModifValue = itemModif[j].valueAsNumber;
+ 
+       const result = basket.filter(
+         (element) => element.itemModifValue !== itemNew);
+ 
+       result.quantity = itemModifValue;
+       basket[j].quantity = result.quantity;
+ 
+       localStorage.setItem("basket", JSON.stringify(basket));
+ 
+       location.reload();// rafraichir la  page
+       // alert("votre panier est à jour.")
+ 
+     });//fin addeventlistener
+   }
+}
+ 
+ //pour supprimer le produit du panier
+deleteArticle();
+ 
+function deleteArticle() {
+   let deleteItem = document.querySelectorAll(".deleteItem");
+   for (let k = 0; k < deleteItem.length; k++) {
+      deleteItem[k].addEventListener("click", (event) => {
+      event.preventDefault()
+ 
+      //Je selectionne l'élément à modifier selon son Id et sa couleur
+      let deleteId = basket[k].id;
+      let deleteColor = basket[k].color;
+ 
+      basket = basket.filter((element) => element.id !== deleteId || element.color !== deleteColor);
+      localStorage.setItem("basket", JSON.stringify(basket));
+ 
+      location.reload();
+      alert("Votre article a bien été supprimé.")
+ 
+ 
+     })//fin addEventListener
+   }
+ }
+
+const filterProducts = (listProduct) => {
+   const list = listProduct;
+   if (basket && basket.length) {
+     const productBasket = basket.map(product => product.id);// Recupération des ID du local Storage
+     productListFiltred = list.filter(p => productBasket.includes(p._id));//Filtrer les produit de l'api en fonction de ceux present ds le LS
+     
+     getCart(productListFiltred);
+     modifyQuantity();
+     deleteArticle();
+     getTotals();
+   }else {
+      let emptyBasket = document.createElement("p");
+      emptyBasket.innerText="Votre Panier est vide";
+      _cart.appendChild(emptyBasket);
+   }
+}
+
+getProductsFromApi()
+   .then(filterProducts)
+   .catch(displayError)

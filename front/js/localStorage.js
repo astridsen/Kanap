@@ -67,19 +67,3 @@ const persistProductInBasket = (product) => {
   
   saveBasket(basket);
 };
-
-const getTotalNumberOfProducts = () => {
-  let total = 0;
-  for (let product of basket) {
-      total += product.quantity;
-  }
-  return total;
-};
-
-const getTotalPrice = () => {
-  let total = 0;
-  for (let product of basket) {
-      total += product.quantity * product.price;
-  }
-  return total
-};
