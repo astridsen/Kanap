@@ -64,7 +64,7 @@ const getCart = (productList) => {
       // Ajout du prix
       let productPrice = document.createElement("p");
       itemContentTitlePrice.appendChild(productPrice);
-      productPrice.classList = "product__price"
+      productPrice.classList = "product__price";
       productPrice.innerHTML = currentProduct.price + " €";
 
       // Ajout de la div "cart__item__content__settings"
@@ -80,7 +80,7 @@ const getCart = (productList) => {
       // Ajout de "Qté : "
       let productQte = document.createElement("p");
       itemContentSettingsQuantity.appendChild(productQte);
-      productQte.innerHTML = "Qté : ";
+      productQte.innerHTML = "Quantité : ";
 
       // Ajout de la quantité
       let productQuantity = document.createElement("input");
@@ -105,6 +105,13 @@ const getCart = (productList) => {
     }
 }
 
+const modifyQuantity = () => {
+   let itemModif = document.querySelectorAll(".itemQuantity");
+   itemModif.addEventListener("change", (event) => {
+      updateProductQuantity();
+   location.reload();
+   });
+}
 
 const getTotalNumberOfProducts = () => {
    let totalQuantity = 0;
@@ -120,12 +127,11 @@ const displayTotalQuantity = () => {
 }
 
 const getTotalPrice = () => {
-   getProductsFromApi();
    let totalPrice = 0;
    for (let product of basket) {
-      totalPrice += parseInt(product.quantity) * parseInt(product.price);
+      totalPrice += parseInt(product.quantity) * parseInt(product.productPrice);
    }
-   return totalPrice
+   return parseInt(totalPrice)
 }
 
 const displayTotalPrice = () => {
@@ -133,94 +139,19 @@ const displayTotalPrice = () => {
    productTotalPrice.textContent = getTotalPrice()
 }
 
-function getTotals() {
+const getTotals = () => {
    displayTotalQuantity();
    displayTotalPrice();
 }
 
- /** On récupère la quantité totale
-   let elementsQuantity = document.getElementsByClassName('itemQuantity');
-   let myLength = elementsQuantity.length;
-   totalQuantity = 0;
-   //(expression initiale, condition, incrémentation)
-   for (let i = 0; i < myLength; i++) {
-     totalQuantity += elementsQuantity[i].valueAsNumber;
-   }
- 
-   let totalQuantity = document.getElementById('totalQuantity');
-   totalQuantity.innerHTML = totalQuantity;
- 
- 
-   // On récupère le prix total
-   let elementPrice = document.getElementsByClassName("product__price");
-   
-   totalPrice = 0;
-   for (let i = 0; i < myLength; i++) {
-     let price = parseInt(elementPrice[i].innerHTML.split(" €")[0]);
-     totalPrice += (elementsQuantity[i].valueAsNumber * price);
-     
-   }
- 
-   let productTotalPrice = document.getElementById('totalPrice');
-   productTotalPrice.innerHTML = totalPrice;
- 
-}*/
- 
- 
- // On modifie la quantité d'un produit dans le panier
- 
- 
- 
- function modifyQuantity() {
- 
-   let itemModif = document.querySelectorAll(".itemQuantity");
- 
- 
-   for (let j = 0; j < itemModif.length; j++) {
-     itemModif[j].addEventListener("change", (event) => {
-       event.preventDefault()
-       //Je selectionne l'élément à modifier selon son Id et sa couleur
-       let itemNew = basket[j].quantity;
-       let itemModifValue = itemModif[j].valueAsNumber;
- 
-       const result = basket.filter(
-         (element) => element.itemModifValue !== itemNew);
- 
-       result.quantity = itemModifValue;
-       basket[j].quantity = result.quantity;
- 
-       localStorage.setItem("basket", JSON.stringify(basket));
- 
-       location.reload();// rafraichir la  page
-       // alert("votre panier est à jour.")
- 
-     });//fin addeventlistener
-   }
-}
- 
- //pour supprimer le produit du panier
-deleteArticle();
- 
-function deleteArticle() {
+const deleteArticle = () => {
    let deleteItem = document.querySelectorAll(".deleteItem");
-   for (let k = 0; k < deleteItem.length; k++) {
-      deleteItem[k].addEventListener("click", (event) => {
-      event.preventDefault()
- 
-      //Je selectionne l'élément à modifier selon son Id et sa couleur
-      let deleteId = basket[k].id;
-      let deleteColor = basket[k].color;
- 
-      basket = basket.filter((element) => element.id !== deleteId || element.color !== deleteColor);
-      localStorage.setItem("basket", JSON.stringify(basket));
- 
-      location.reload();
-      alert("Votre article a bien été supprimé.")
- 
- 
-     })//fin addEventListener
-   }
- }
+   
+   deleteItem.addEventListener("click", () => {
+   removeProductFromBasket();
+   location.reload();
+     });
+};
 
 const filterProducts = (listProduct) => {
    const list = listProduct;
@@ -233,12 +164,113 @@ const filterProducts = (listProduct) => {
      deleteArticle();
      getTotals();
    }else {
-      let emptyBasket = document.createElement("p");
-      emptyBasket.innerText="Votre Panier est vide";
-      _cart.appendChild(emptyBasket);
+      emptyBasket();
    }
+}
+
+const emptyBasket = () => {
+   const noProductInBasket = document.createElement("p");
+   noProductInBasket.innerText="Votre Panier est vide";
+   _cart.appendChild(noProductInBasket);
 }
 
 getProductsFromApi()
    .then(filterProducts)
    .catch(displayError)
+
+
+//Partie Formulaire
+
+const contact = {
+   firstName: "",
+   lastName: "",
+   address: "",
+   city: "",
+   email: "",
+};
+
+const formulaire = document.querySelector('.cart__order__form input[type= "submit"]');
+const inputs = document.querySelector(".cart__order__form__question");
+
+const firstName = document.querySelector("#firstName");
+const lastName = document.querySelector("#lastName");
+const address = document.querySelector("#address");
+const email = document.querySelector("#email");
+const city = document.querySelector("#city");
+
+const firstNameErrorMsg = document.querySelector("#firstNameErrorMsg");
+const lastNameErrorMsg = document.querySelector("#lastNameErrorMsg");
+const addressErrorMsg = document.querySelector("#addressErrorMsg");
+const emailErrorMsg = document.querySelector("#emailErrorMsg");
+const cityErrorMsg = document.querySelector("#cityErrorMsg");
+
+const nameAndCityRegExp = new RegExp("^[a-zA-Zàâäéèêëïîôöùûüç ,.'-]+$");
+
+firstName.addEventListener("input", (f) => {
+   const validateFirstName = (firstName) => {
+      const textFirstName = nameAndCityRegExp.test(firstName)
+      if(textFirstName) {
+      return true;
+      }else{
+         firstNameErrorMsg.textContent = "Le nom est invalide";
+      return false;
+      }
+   }
+   validateFirstName(f);
+});
+
+lasttName.addEventListener("input", (l) => {
+   const validateLastName = (lastName) => {
+      const textLastName = nameAndCityRegExp.test(lastName)
+      if(textLastName) {
+      return true;
+      }else{
+         lastNameErrorMsg.textContent = "Le prénom est invalide";
+      return false;
+      }
+   }
+   validateLastName(l);
+});
+
+const adressRegExp = new RegExp("/^[a-zA-Z0-9\s,.'-]{3,}$/")
+
+address.addEventListener("input", (a) => {
+   const validateAddress = (adress) => {
+      const textAddress = adressRegExp.test(adress)
+      if(textAddress) {
+      return true;
+      }else{
+         addressErrorMsg.textContent = "L'adresse est invalide";
+      return false;
+      }
+   }
+   validateAddress(a);
+});
+
+city.addEventListener("input", (c) => {
+   const validateCity = (city) => {
+      const textCity = addressRegExp.test(city)
+      if(textCity) {
+      return true;
+      }else{
+         cityErrorMsg.textContent = "La ville est invalide";
+      return false;
+      }
+   }
+   validateCity(c);
+});
+
+const emailRegExp = new RegExp("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$.")
+
+email.addEventListener("input", (e) => {
+   const validateEmail = (email) => {
+      const textEmail = emailRegExp.test(email)
+      if(textEmail) {
+      return true;
+      }else{
+         emailErrorMsg.textContent = "L'adresse mail est invalide";
+      return false;
+      }
+   }
+   validateEmail(e);
+});
