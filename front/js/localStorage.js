@@ -36,6 +36,17 @@ const updateProductQuantity = (product, quantity) => {
   persistProductInBasket(basketProduct);
 };
 
+const addProductQuantity = (product) => {
+  if (!isProductInBasket(product)) {
+    return;
+  }
+  
+  const basketProduct = getProductFromBasket(product);
+  basketProduct.quantity += 1;
+  
+  persistProductInBasket(basketProduct);
+};
+
 const removeProductFromBasket = (product) => {
   const basket = getBasketWithoutProduct(product);
 

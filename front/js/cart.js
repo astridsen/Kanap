@@ -14,105 +14,133 @@ const getProductsFromApi = () => {
      })
 };
 
-const displayError = () => {
-   console.log("Impossible de récupérer les données du panier")
+const displayError = (error) => {
+   //console.log("Impossible de récupérer les données du panier")
+   console.error(error)
 }
 
 const getCart = (productList) => {
    for (let product in basket) {
-      const currentProduct = productList.find(p => p._id === basket[product].id);
+      const productInCart = productList.find(p => p._id === basket[product].id);
+      
       //creation de l'article
-
-      let article = document.createElement("article");
-      document.querySelector("#cart__items").appendChild(article);
-      article.className = "cart__item";
-      article.setAttribute("data-id", basket[product].id);
+      const _article = document.createElement("article");
+      document.querySelector("#cart__items").appendChild(_article);
+      _article.className = "cart__item";
+      _article.setAttribute("data-id", basket[product].id);
+      _article.setAttribute("data-color", basket[product].color);
 
       // Ajout de la div "cart__item__img"
-      let productDiv = document.createElement("div");
-      article.appendChild(productDiv);
-      productDiv.className = "cart__item__img";
+      const _productDiv = document.createElement("div");
+      _article.appendChild(_productDiv);
+      _productDiv.className = "cart__item__img";
 
       // ajout de l'image
-      let productImg = document.createElement("img");
-      productDiv.appendChild(productImg);
-      productImg.src = currentProduct.imageUrl;
-      productImg.alt = currentProduct.altTxt;
+      const _productImg = document.createElement("img");
+      _productDiv.appendChild(_productImg);
+      _productImg.src = productInCart.imageUrl;
+      _productImg.alt = productInCart.altTxt;
 
 
       // Ajout de la div "cart__item__content"
-      let itemContent = document.createElement("div");
-      article.appendChild(itemContent);
-      itemContent.className = "cart__item__content";
+      const _itemContent = document.createElement("div");
+      _article.appendChild(_itemContent);
+      _itemContent.className = "cart__item__content";
 
       // Ajout de la div "cart__item__content__titlePrice"
-      let itemContentTitlePrice = document.createElement("div");
-      itemContent.appendChild(itemContentTitlePrice);
-      itemContentTitlePrice.className = "cart__item__content__titlePrice";
+      const _itemContentTitlePrice = document.createElement("div");
+      _itemContent.appendChild(_itemContentTitlePrice);
+      _itemContentTitlePrice.className = "cart__item__content__titlePrice";
 
       // Ajout du titre h3
-      let productTitle = document.createElement("h2");
-      itemContentTitlePrice.appendChild(productTitle);
-      productTitle.innerHTML = currentProduct.name;
+      const _productTitle = document.createElement("h2");
+      _itemContentTitlePrice.appendChild(_productTitle);
+      _productTitle.innerHTML = productInCart.name;
 
       // Ajout de la couleur
-      let productColor = document.createElement("p");
-      productTitle.appendChild(productColor);
-      productColor.innerHTML = basket[product].color;
+      const _productColor = document.createElement("p");
+      _productTitle.appendChild(_productColor);
+      _productColor.innerHTML = basket[product].color;
 
 
       // Ajout du prix
-      let productPrice = document.createElement("p");
-      itemContentTitlePrice.appendChild(productPrice);
-      productPrice.classList = "product__price";
-      productPrice.innerHTML = currentProduct.price + " €";
+      const _productPrice = document.createElement("p");
+      _itemContentTitlePrice.appendChild(_productPrice);
+      _productPrice.classList = "product__price";
+      _productPrice.innerHTML = parseInt(productInCart.price) + " €";
 
       // Ajout de la div "cart__item__content__settings"
-      let itemContentSettings = document.createElement("div");
-      itemContent.appendChild(itemContentSettings);
-      itemContentSettings.className = "cart__item__content__settings";
+      const _itemContentSettings = document.createElement("div");
+      _itemContent.appendChild(_itemContentSettings);
+      _itemContentSettings.className = "cart__item__content__settings";
 
       // Ajout de la div "cart__item__content__settings__quantity"
-      let itemContentSettingsQuantity = document.createElement("div");
-      itemContentSettings.appendChild(itemContentSettingsQuantity);
-      itemContentSettingsQuantity.className = "cart__item__content__settings__quantity";
+      const _itemContentSettingsQuantity = document.createElement("div");
+      _itemContentSettings.appendChild(_itemContentSettingsQuantity);
+      _itemContentSettingsQuantity.className = "cart__item__content__settings__quantity";
 
-      // Ajout de "Qté : "
-      let productQte = document.createElement("p");
-      itemContentSettingsQuantity.appendChild(productQte);
-      productQte.innerHTML = "Quantité : ";
+      // Ajout de "Quantité : "
+      const _productTitleQuantite = document.createElement("p");
+      _itemContentSettingsQuantity.appendChild(_productTitleQuantite);
+      _productTitleQuantite.innerHTML = "Quantité : ";
 
       // Ajout de la quantité
-      let productQuantity = document.createElement("input");
-      itemContentSettingsQuantity.appendChild(productQuantity);
-      productQuantity.value = basket[product].quantity;
-      productQuantity.className = "itemQuantity";
-      productQuantity.setAttribute("type", "number");
-      productQuantity.setAttribute("min", "1");
-      productQuantity.setAttribute("max", "100");
-      productQuantity.setAttribute("name", "itemQuantity");
+      const _productQuantity = document.createElement("input");
+      _itemContentSettingsQuantity.appendChild(_productQuantity);
+      _productQuantity.value = basket[product].quantity;
+      _productQuantity.className = "itemQuantity";
+      _productQuantity.setAttribute("type", "number");
+      _productQuantity.setAttribute("min", "1");
+      _productQuantity.setAttribute("max", "100");
+      _productQuantity.setAttribute("name", "itemQuantity");
+     	_productQuantity.addEventListener('change', () => {
+        if (parseInt(_productQuantity.value, 10) === 0) {
+          return deleteProduct(basket[product]);
+        }
+        addProductQuantity(basket[product])
+        location.reload();
+      });
 
       // Ajout de la "div" "cart__item__content__settings__delete"
-      let itemContentSettingsDelete = document.createElement("div");
-      itemContentSettings.appendChild(itemContentSettingsDelete);
-      itemContentSettingsDelete.className = "cart__item__content__settings__delete";
+      const _itemContentSettingsDelete = document.createElement("div");
+      _itemContentSettings.appendChild(_itemContentSettingsDelete);
+      _itemContentSettingsDelete.className = "cart__item__content__settings__delete";
 
       // Ajout de "p" suppression
-      let productDelete = document.createElement("p");
-      itemContentSettingsDelete.appendChild(productDelete);
-      productDelete.className = "deleteItem";
-      productDelete.innerHTML = "Supprimer";
+      const _productDelete = document.createElement("p");
+      _itemContentSettingsDelete.appendChild(_productDelete);
+      _productDelete.className = "deleteItem";
+      _productDelete.innerHTML = "Supprimer";
+     	_productDelete.addEventListener('click', () => deleteProduct(basket[product]));
     }
 }
 
-const modifyQuantity = () => {
-   let itemModif = document.querySelectorAll(".itemQuantity");
-   itemModif.addEventListener("change", (event) => {
-      updateProductQuantity();
-   location.reload();
-   });
+const deleteProduct = (product) => {
+	if (!confirm('Êtes-vous certain de vouloir supprimer ce produit de votre panier')) {
+		return;
+  }
+  
+  removeFromBasket(product);
+  removeProductFromDom(product);
+  location.reload();
+};
+
+const removeProductFromDom = () => {
+   const article = document.querySelector("article")
+   article.parentNode.removeChild(article);
 }
 
+const filterProducts = (listProduct) => {
+   if (basket && basket.length) {
+     const productBasket = basket.map(product => product.id);
+     productListFiltred = listProduct.filter(p => productBasket.includes(p._id));
+
+     getCart(productListFiltred);
+     getTotals();
+   }else {
+      emptyBasket();
+   }
+}
 const getTotalNumberOfProducts = () => {
    let totalQuantity = 0;
    for (let product of basket) {
@@ -120,7 +148,7 @@ const getTotalNumberOfProducts = () => {
    }
    return totalQuantity;
 };
-  
+
 const displayTotalQuantity = () => {
    let totalProductsQuantity = document.querySelector("#totalQuantity");
    totalProductsQuantity.textContent = getTotalNumberOfProducts();
@@ -129,9 +157,11 @@ const displayTotalQuantity = () => {
 const getTotalPrice = () => {
    let totalPrice = 0;
    for (let product of basket) {
-      totalPrice += parseInt(product.quantity) * parseInt(product.productPrice);
+      totalPrice += product.quantity * price;
+      console.log(typeof(product.quantity))
+      console.log(typeof(price))
    }
-   return parseInt(totalPrice)
+   return totalPrice
 }
 
 const displayTotalPrice = () => {
@@ -144,30 +174,6 @@ const getTotals = () => {
    displayTotalPrice();
 }
 
-const deleteArticle = () => {
-   let deleteItem = document.querySelectorAll(".deleteItem");
-   
-   deleteItem.addEventListener("click", () => {
-   removeProductFromBasket();
-   location.reload();
-     });
-};
-
-const filterProducts = (listProduct) => {
-   const list = listProduct;
-   if (basket && basket.length) {
-     const productBasket = basket.map(product => product.id);// Recupération des ID du local Storage
-     productListFiltred = list.filter(p => productBasket.includes(p._id));//Filtrer les produit de l'api en fonction de ceux present ds le LS
-     
-     getCart(productListFiltred);
-     modifyQuantity();
-     deleteArticle();
-     getTotals();
-   }else {
-      emptyBasket();
-   }
-}
-
 const emptyBasket = () => {
    const noProductInBasket = document.createElement("p");
    noProductInBasket.innerText="Votre Panier est vide";
@@ -178,10 +184,9 @@ getProductsFromApi()
    .then(filterProducts)
    .catch(displayError)
 
-
 //Partie Formulaire
 
-const contact = {
+ const contact = {
    firstName: "",
    lastName: "",
    address: "",
@@ -204,22 +209,25 @@ const addressErrorMsg = document.querySelector("#addressErrorMsg");
 const emailErrorMsg = document.querySelector("#emailErrorMsg");
 const cityErrorMsg = document.querySelector("#cityErrorMsg");
 
+const submit = document.querySelector("#order");
+
 const nameAndCityRegExp = new RegExp("^[a-zA-Zàâäéèêëïîôöùûüç ,.'-]+$");
 
-firstName.addEventListener("input", (f) => {
-   const validateFirstName = (firstName) => {
-      const textFirstName = nameAndCityRegExp.test(firstName)
-      if(textFirstName) {
-      return true;
-      }else{
-         firstNameErrorMsg.textContent = "Le nom est invalide";
-      return false;
-      }
+const validateFirstName = (firstName) => {
+   const textFirstName = nameAndCityRegExp.test(firstName)
+   if(textFirstName) {
+   return true;
+   }else{
+      firstNameErrorMsg.textContent = "Le nom est invalide";
+   return false;
    }
-   validateFirstName(f);
+}
+
+firstName.addEventListener("blur", (e) => {
+   validateFirstName(e);
 });
 
-lasttName.addEventListener("input", (l) => {
+lasttName.addEventListener("input", (e) => {
    const validateLastName = (lastName) => {
       const textLastName = nameAndCityRegExp.test(lastName)
       if(textLastName) {
@@ -229,12 +237,12 @@ lasttName.addEventListener("input", (l) => {
       return false;
       }
    }
-   validateLastName(l);
+   validateLastName(e);
 });
 
 const adressRegExp = new RegExp("/^[a-zA-Z0-9\s,.'-]{3,}$/")
 
-address.addEventListener("input", (a) => {
+address.addEventListener("input", () => {
    const validateAddress = (adress) => {
       const textAddress = adressRegExp.test(adress)
       if(textAddress) {
