@@ -114,4 +114,5 @@ addToCart.addEventListener('click', () => {
         return errorQuantity(product.quantity);
     }
     addToBasket(product);
+    alert('Le produit a bien été ajouté au panier')
 });

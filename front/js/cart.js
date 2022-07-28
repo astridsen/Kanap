@@ -2,8 +2,6 @@ basket = JSON.parse(localStorage.getItem("basket"));
 let _cart = document.getElementById("cart__items");
 let productListFiltred = [];
 
-// recuperer tt les produits avec fetch 
-// Filtrer la liste des produits pour garder juste les produits qu'on a sur le localstorage
 const getProductsFromApi = () => {
    return fetch("http://localhost:3000/api/products")
       .then((res) => {
@@ -15,7 +13,6 @@ const getProductsFromApi = () => {
 };
 
 const displayError = (error) => {
-   //console.log("Impossible de récupérer les données du panier")
    console.error(error)
 }
 
@@ -68,6 +65,7 @@ const getCart = (productList) => {
       _itemContentTitlePrice.appendChild(_productPrice);
       _productPrice.classList = "product__price";
       _productPrice.innerHTML = parseInt(productInCart.price) + " €";
+
 
       // Ajout de la div "cart__item__content__settings"
       const _itemContentSettings = document.createElement("div");
@@ -141,6 +139,7 @@ const filterProducts = (listProduct) => {
       emptyBasket();
    }
 }
+
 const getTotalNumberOfProducts = () => {
    let totalQuantity = 0;
    for (let product of basket) {
@@ -156,12 +155,16 @@ const displayTotalQuantity = () => {
 
 const getTotalPrice = () => {
    let totalPrice = 0;
-   for (let product of basket) {
-      totalPrice += product.quantity * price;
-      console.log(typeof(product.quantity))
-      console.log(typeof(price))
+   
+   for (let i = 0; i < basket.length; i++) {
+      const item = basket[i];
+      const itemInBasket = productListFiltred.find(p => p._id === item.id);
+
+      totalPrice += basket[i].quantity * itemInBasket.price;
+      let totalPriceElement = document.getElementById('totalPrice');
+      totalPriceElement.textContent = totalPrice;
    }
-   return totalPrice
+   return totalPrice;
 }
 
 const displayTotalPrice = () => {
@@ -174,6 +177,7 @@ const getTotals = () => {
    displayTotalPrice();
 }
 
+
 const emptyBasket = () => {
    const noProductInBasket = document.createElement("p");
    noProductInBasket.innerText="Votre Panier est vide";
@@ -183,102 +187,3 @@ const emptyBasket = () => {
 getProductsFromApi()
    .then(filterProducts)
    .catch(displayError)
-
-//Partie Formulaire
-
- const contact = {
-   firstName: "",
-   lastName: "",
-   address: "",
-   city: "",
-   email: "",
-};
-
-const formulaire = document.querySelector('.cart__order__form input[type= "submit"]');
-const inputs = document.querySelector(".cart__order__form__question");
-
-const firstName = document.querySelector("#firstName");
-const lastName = document.querySelector("#lastName");
-const address = document.querySelector("#address");
-const email = document.querySelector("#email");
-const city = document.querySelector("#city");
-
-const firstNameErrorMsg = document.querySelector("#firstNameErrorMsg");
-const lastNameErrorMsg = document.querySelector("#lastNameErrorMsg");
-const addressErrorMsg = document.querySelector("#addressErrorMsg");
-const emailErrorMsg = document.querySelector("#emailErrorMsg");
-const cityErrorMsg = document.querySelector("#cityErrorMsg");
-
-const submit = document.querySelector("#order");
-
-const nameAndCityRegExp = new RegExp("^[a-zA-Zàâäéèêëïîôöùûüç ,.'-]+$");
-
-const validateFirstName = (firstName) => {
-   const textFirstName = nameAndCityRegExp.test(firstName)
-   if(textFirstName) {
-   return true;
-   }else{
-      firstNameErrorMsg.textContent = "Le nom est invalide";
-   return false;
-   }
-}
-
-firstName.addEventListener("blur", (e) => {
-   validateFirstName(e);
-});
-
-lasttName.addEventListener("input", (e) => {
-   const validateLastName = (lastName) => {
-      const textLastName = nameAndCityRegExp.test(lastName)
-      if(textLastName) {
-      return true;
-      }else{
-         lastNameErrorMsg.textContent = "Le prénom est invalide";
-      return false;
-      }
-   }
-   validateLastName(e);
-});
-
-const adressRegExp = new RegExp("/^[a-zA-Z0-9\s,.'-]{3,}$/")
-
-address.addEventListener("input", () => {
-   const validateAddress = (adress) => {
-      const textAddress = adressRegExp.test(adress)
-      if(textAddress) {
-      return true;
-      }else{
-         addressErrorMsg.textContent = "L'adresse est invalide";
-      return false;
-      }
-   }
-   validateAddress(a);
-});
-
-city.addEventListener("input", (c) => {
-   const validateCity = (city) => {
-      const textCity = addressRegExp.test(city)
-      if(textCity) {
-      return true;
-      }else{
-         cityErrorMsg.textContent = "La ville est invalide";
-      return false;
-      }
-   }
-   validateCity(c);
-});
-
-const emailRegExp = new RegExp("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$.")
-
-email.addEventListener("input", (e) => {
-   const validateEmail = (email) => {
-      const textEmail = emailRegExp.test(email)
-      if(textEmail) {
-      return true;
-      }else{
-         emailErrorMsg.textContent = "L'adresse mail est invalide";
-      return false;
-      }
-   }
-   validateEmail(e);
-});
