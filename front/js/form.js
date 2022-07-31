@@ -1,5 +1,6 @@
-basket = JSON.parse(localStorage.getItem("basket"));
+const basket = JSON.parse(localStorage.getItem("basket"));
 
+//Création du tableau "contact" pour stocker les données du formulaire
 let contact = {
     firstName: "",
     lastName: "",
@@ -9,7 +10,7 @@ let contact = {
 };
   
   
-const formulaire = document.querySelector('.cart__order__form input[type= "submit"]');
+const _formulaire = document.querySelector('.cart__order__form input[type= "submit"]');
 
 const firstName = document.querySelector("#firstName");
 const lastName = document.querySelector("#lastName");
