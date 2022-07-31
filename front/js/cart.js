@@ -11,10 +11,6 @@ const getProductsFromApi = () => {
      })
 };
 
-const getProductFromApi = (id) => {
-   return apiProductsList.filter((p) => p.id === id);
-}
-
 const setApiProducts = (apiProducts) => {
    apiProductsList = apiProducts;
    return Promise.resolve();
@@ -24,74 +20,20 @@ const displayError = (error) => {
    console.error(error);
 }
 
-
-
-const deleteProduct = (product) => {
-	if (!confirm('Êtes-vous certain de vouloir supprimer ce produit de votre panier')) {
-		return;
-  }
-  
-  removeFromBasket(product);
-  removeProductFromDom(product);
-  location.reload();
-};
-
-const removeProductFromDom = () => {
-   const article = document.querySelector("article")
-   article.parentNode.removeChild(article);
-}
-
-
-
-const getTotalNumberOfProducts = () => {
-   let totalQuantity = 0;
-   for (let product of basket) {
-       totalQuantity += product.quantity;
+const updateProductQuantityInBasket = (product, quantity) => {
+   if (!isProductInBasket(product)) {
+     return;
    }
-   return totalQuantity;
-};
-
-const displayTotalQuantity = () => {
-   let totalProductsQuantity = document.querySelector("#totalQuantity");
-   totalProductsQuantity.textContent = getTotalNumberOfProducts();
-}
-
-const getTotalPrice = () => {
-   let totalPrice = 0;
-   const basket = getBasket();
    
-   basket.forEach((product) => {
-     const apiProduct = getProductFromApi(product.id);
-     totalPrice += product.quantity * apiProduct.price;
-   });
+   const basketProduct = getProductFromBasket(product);
+   basketProduct.quantity = parseInt(quantity, 10);
    
-   return totalPrice;
- }
-
-const displayTotalPrice = () => {
-   document.querySelector("#totalPrice").textContent = getTotalPrice()
-}
-
-const displayTotals = () => {
-   displayTotalQuantity();
-   displayTotalPrice();
-}
-
-const basketIsEmpty = () => {
-   if (basket == null) {
-      return true
-   }
-}
-
-const displayEmptyBasket = () => {
-   const noProductInBasket = document.createElement("p");
-   noProductInBasket.innerText="Votre Panier est vide";
-   _cart.appendChild(noProductInBasket);
-}
+   persistProductInBasket(basketProduct);
+ };
 
 const displayProduct = (product) => {
 
-   const apiProduct = getProductFromApi(product);
+   const apiProduct = apiProductsList.find(p => p._id === product.id)
 
    //creation de l'article
    const _article = document.createElement("article");
@@ -183,6 +125,66 @@ const displayProduct = (product) => {
    _productDelete.className = "deleteItem";
    _productDelete.innerHTML = "Supprimer";
    _productDelete.addEventListener('click', () => deleteProduct(product));
+}
+
+const deleteProduct = (product) => {
+	if (!confirm('Êtes-vous certain de vouloir supprimer ce produit de votre panier')) {
+		return;
+  }
+  removeFromBasket(product);
+  removeProductFromDom(product);
+  location.reload();
+};
+
+const removeProductFromDom = () => {
+   const article = document.querySelector("article")
+   article.parentNode.removeChild(article);
+}
+
+const getTotalNumberOfProducts = () => {
+   let totalQuantity = 0;
+   for (let product of basket) {
+       totalQuantity += product.quantity;
+   }
+   return totalQuantity;
+};
+
+const displayTotalQuantity = () => {
+   let totalProductsQuantity = document.querySelector("#totalQuantity");
+   totalProductsQuantity.textContent = getTotalNumberOfProducts();
+}
+
+const getTotalPrice = () => {
+   let totalPrice = 0;
+   const basket = getBasket();
+   
+   basket.forEach((product) => {
+     const apiProduct = apiProductsList.find(p => p._id === product.id);
+     totalPrice += product.quantity * apiProduct.price;
+   });
+   
+   return totalPrice;
+ }
+
+const displayTotalPrice = () => {
+   document.querySelector("#totalPrice").textContent = getTotalPrice()
+}
+
+const displayTotals = () => {
+   displayTotalQuantity();
+   displayTotalPrice();
+}
+
+const basketIsEmpty = () => {
+   if (basket == null) {
+      return true
+   }
+}
+
+const displayEmptyBasket = () => {
+   const noProductInBasket = document.createElement("p");
+   noProductInBasket.innerText="Votre Panier est vide";
+   _cart.appendChild(noProductInBasket);
 }
 
 const displayBasketProducts = () => {
