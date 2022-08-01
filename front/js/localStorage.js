@@ -1,5 +1,7 @@
+//Création de la clé basket
 const BASKET_KEY = 'basket';
 
+//Ajout des produits au panier
 const addToBasket = (product) => {
   if (isProductInBasket(product)) {
     return updateProductQuantity(product, product.quantity);
@@ -8,6 +10,7 @@ const addToBasket = (product) => {
   return persistProductInBasket(product);
 };
 
+//Suppression des produits dans le panier
 const removeFromBasket = (product) => {
   if (!isProductInBasket(product)) {
     return;
@@ -16,15 +19,18 @@ const removeFromBasket = (product) => {
   return removeProductFromBasket(product);
 }
 
+//Vérifie si le produit est dans le panier
 const isProductInBasket = (product) => {
   return typeof(getProductFromBasket(product)) !== 'undefined';
 };
 
+//Récupérer le produit depuis le panier
 const getProductFromBasket = (product) => {
   const basket = getBasket();
   return basket.find(p => p.id === product.id && p.color === product.color);
 };
 
+//Modifie la quantité
 const updateProductQuantity = (product, quantity) => {
   if (!isProductInBasket(product)) {
     return;
@@ -36,6 +42,7 @@ const updateProductQuantity = (product, quantity) => {
   persistProductInBasket(basketProduct);
 };
 
+//Ajout d'un produit dans le panier
 const addProductQuantity = (product) => {
   if (!isProductInBasket(product)) {
     return;
@@ -47,16 +54,19 @@ const addProductQuantity = (product) => {
   persistProductInBasket(basketProduct);
 };
 
+//Suppression d'un produit dans le panier
 const removeProductFromBasket = (product) => {
   const basket = getBasketWithoutProduct(product);
 
   saveBasket(basket);
 };
 
+//Récupérer les produits suite à une suppression
 const getBasketWithoutProduct = (product) => {
   return getBasket().filter((p) => p.id !== product.id || p.color !== product.color);
 };
 
+//Récupérer les données du localstorage
 const getBasket = () => {
   let basket = localStorage.getItem(BASKET_KEY);
   
@@ -68,10 +78,12 @@ const getBasket = () => {
   return JSON.parse(basket);
 };
 
+//Enregistrer le panier 
 const saveBasket = (basket) => {
   localStorage.setItem(BASKET_KEY, JSON.stringify(basket));
 };
 
+//Conserver le produit dans le panier
 const persistProductInBasket = (product) => {
   const basket = getBasketWithoutProduct(product);
   basket.push(product);  

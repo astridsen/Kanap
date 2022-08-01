@@ -1,6 +1,7 @@
 let _cart = document.getElementById("cart__items");
 let apiProductsList = [];
 
+//Récupérer les données de l'API
 const getProductsFromApi = () => {
    return fetch("http://localhost:3000/api/products")
       .then((res) => {
@@ -11,15 +12,18 @@ const getProductsFromApi = () => {
      })
 };
 
+//Renvoie les données des produits de l'API dans le tableau apiProductList
 const setApiProducts = (apiProducts) => {
    apiProductsList = apiProducts;
    return Promise.resolve();
 }
 
+//Affichage d'une erreur
 const displayError = (error) => {
    console.error(error);
 }
 
+//Affichage des produits dans le panier
 const displayProduct = (product) => {
 
    const apiProduct = apiProductsList.find(p => p._id === product.id)
@@ -122,6 +126,7 @@ const displayProduct = (product) => {
    _productDelete.addEventListener('click', () => deleteProduct(product));
 }
 
+//Suppression d'un produit dans le panier
 const deleteProduct = (product) => {
 	if (!confirm('Êtes-vous certain de vouloir supprimer ce produit de votre panier')) {
 		return;
@@ -131,11 +136,13 @@ const deleteProduct = (product) => {
   location.reload();
 };
 
+//Suppression d'un produit du DOM
 const removeProductFromDom = () => {
    const article = document.querySelector("article")
    article.parentNode.removeChild(article);
 }
 
+//Obtenir le nombre total de produits
 const getTotalNumberOfProducts = () => {
    let totalQuantity = 0;
    for (let product of basket) {
@@ -144,11 +151,13 @@ const getTotalNumberOfProducts = () => {
    return totalQuantity;
 };
 
+//Afficher le nombre total de produits
 const displayTotalQuantity = () => {
    let totalProductsQuantity = document.querySelector("#totalQuantity");
    totalProductsQuantity.textContent = getTotalNumberOfProducts();
 }
 
+//Obtenir le prix total
 const getTotalPrice = () => {
    let totalPrice = 0;
    const basket = getBasket();
@@ -161,27 +170,32 @@ const getTotalPrice = () => {
    return totalPrice;
  }
 
+//Afficher le prix total
 const displayTotalPrice = () => {
    document.querySelector("#totalPrice").textContent = getTotalPrice()
 }
 
+//Afficher les totaux
 const displayTotals = () => {
    displayTotalQuantity();
    displayTotalPrice();
 }
 
+//Cas où le panier est vide
 const basketIsEmpty = () => {
    if (basket == null) {
       return true
    }
 }
 
+//Affichage d'un message lorsque le panier est vide
 const displayEmptyBasket = () => {
    const noProductInBasket = document.createElement("p");
    noProductInBasket.innerText="Votre Panier est vide";
    _cart.appendChild(noProductInBasket);
 }
 
+//Afficher les produits du panier
 const displayBasketProducts = () => {
    if (basketIsEmpty()) {
       return displayEmptyBasket();

@@ -1,5 +1,6 @@
 const _productsList = document.getElementById('items');
 
+//Récupération des données depuis l'API
 const getProductsFromApi = () => {
   return fetch("http://localhost:3000/api/products")
   	.then((res) => {
@@ -10,6 +11,7 @@ const getProductsFromApi = () => {
     })
 };
 
+//Affichage des produits renvoyés par l'API
 function displayProducts(products) {
     if (!hasProducts(products)) {
         throw new Error('No products found!');
@@ -17,10 +19,12 @@ function displayProducts(products) {
     products.forEach((product) => addProductToProductsList(product));
 }
 
+//Vérification de la présence de produits
 const hasProducts = (products) => {
   return products.length !== 0;
 }
 
+//Affichage des informations des produits récupérées dans l'API
 const addProductToProductsList = (product) => {
   const _productLink = document.createElement('a');
   _productLink.href = `./product.html?id=${product._id}`;
@@ -51,6 +55,7 @@ const createImage = (src, alt) => {
   return _image;
 };
 
+//Affichage d'une erreur
 const displayError = (err) => {
     alert("Produit indisponible")
 }
@@ -58,4 +63,3 @@ const displayError = (err) => {
 getProductsFromApi()
 	.then(displayProducts)
 	.catch(displayError)
-

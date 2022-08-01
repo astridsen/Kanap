@@ -10,7 +10,7 @@ let contact = {
 };
   
   
-const _formulaire = document.querySelector('.cart__order__form input[type= "submit"]');
+const formulaire = document.querySelector('.cart__order__form input[type= "submit"]');
 
 const firstName = document.querySelector("#firstName");
 const lastName = document.querySelector("#lastName");
@@ -35,6 +35,7 @@ let submit = document.querySelector("#order");
 
 //Validation des champs du formulaire 
 
+//Validation du prénom
 const validFirstName = (firstName) => {
     const testName = nameAndCityRegExp.test(firstName);
     if (testName) {
@@ -46,11 +47,13 @@ const validFirstName = (firstName) => {
     }
 }
 
+//Valisation du prénom lors du remplissage du champs
 firstName.addEventListener("input", (e) => {
     validFirstName(e.target.value);
     contact.firstName = e.target.value;
 });
   
+//Validation du nom 
 const validLastName = (lastName) => {
     const testLastName = nameAndCityRegExp.test(lastName);
     if (testLastName) {
@@ -62,11 +65,13 @@ const validLastName = (lastName) => {
     }
 }
   
+//Validation du nom lors de l'événement remplissage du champ 
 lastName.addEventListener("input", (e) => {
     validLastName(e.target.value);
     contact.lastName = e.target.value;
 });
-  
+
+//Validation de l'adresse
 const validAddress = (address) => {
     const testAddress = addressRegExp.test(address);
     if (testAddress) {
@@ -78,11 +83,13 @@ const validAddress = (address) => {
     }
 } 
 
+//Validation de l'adresse lors de l'événement remplissage du champ 
 address.addEventListener("input", (e) => {
     validAddress(e.target.value);
     contact.address = e.target.value;
 });
   
+//Validation de la ville 
 const validCity = (city) => {
     let testCity = nameAndCityRegExp.test(city);
     if (testCity) {
@@ -94,11 +101,13 @@ const validCity = (city) => {
     }
 }  
 
+//Validation de la ville lors de l'événement remplissage du champ 
 city.addEventListener("input", (e) => {
     validCity(e.target.value);
     contact.city = e.target.value;
 });
-  
+
+//Validation du email
 const validEmail = (email) => {
     const testEmail = emailRegExp.test(email);
     if (testEmail) {
@@ -110,28 +119,34 @@ const validEmail = (email) => {
     }
 } 
 
+//Validation du email lors de l'événement remplissage du champ 
 email.addEventListener("input", (e) => {
     validEmail(e.target.value);
     contact.email = e.target.value;
 });
   
-  
+//Constitution de l'array products et de l'object order
 let products = [];
 let order = {
     contact: contact,
     products: products,
 };
 
-const emptyCart = () => {
+//Alerte dans le cas où le panier est vide
+const emptyBasket = () => {
     alert("Votre panier est vide");
     location.reload();
 }
 
+//Enregistrer les données contact
+const saveContact = () => localStorage.setItem("contact", JSON.stringify(contact))
+
+//Envoi des données 
 const sendDataOrder = () => {
-    localStorage.setItem("contact", JSON.stringify(contact));
+    saveContact();
     if (basket && basket.length) {
-        for (let articleInCart of basket) {
-          products.push(articleInCart.id)
+        for (let articleInBasket of basket) {
+          products.push(articleInBasket.id)
         };
         fetch("http://localhost:3000/api/products/order", {
           method: "POST",
@@ -145,11 +160,11 @@ const sendDataOrder = () => {
             window.location.assign("confirmation.html?id=" + data.orderId)
           });    
       } else {
-        alert("Votre panier est vide");
-        location.reload();
+        emptyBasket();
     }
 }
 
+//Validation du formulaire
 const validForm = () => {
     if (
         nameAndCityRegExp.test(firstName.value) == false ||
@@ -174,6 +189,7 @@ const validForm = () => {
 
 const orderButton = document.querySelector("#order")
 
+//Envoi des données pour validation de la commande lors du clic sur le bouton
 orderButton.addEventListener("click", (e) => {
     e.preventDefault();
     validForm();

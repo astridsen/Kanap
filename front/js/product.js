@@ -1,4 +1,4 @@
-// 
+//Récupération des couleurs sous forme d'array
 const productColors = [];
 
 //Récupération de l'ID dans l'url
@@ -30,20 +30,20 @@ const getJsonFromApi = (url) => {
 //Affichage des informations
 const displayProduct = (product) => {
     // Affichage de l'image
-    const productImg = createImage(product.imageUrl, product.altTxt);
-    document.querySelector(".item__img").appendChild(productImg);
+    const _productImg = createImage(product.imageUrl, product.altTxt);
+    document.querySelector(".item__img").appendChild(_productImg);
 
     // Affichage du titre
-    const productName = document.getElementById('title');
-    productName.textContent = product.name;
+    const _productName = document.getElementById('title');
+    _productName.textContent = product.name;
 
     // Affichage du prix
-    const productPrice = document.getElementById('price');
-    productPrice.textContent = product.price;
+    const _productPrice = document.getElementById('price');
+    _productPrice.textContent = product.price;
 
     // Affichage de la description
-    const productDescription = document.getElementById('description');
-    productDescription.textContent = product.description;
+    const _productDescription = document.getElementById('description');
+    _productDescription.textContent = product.description;
 
     // Affichage des couleurs
     const _productColors = document.querySelector("#colors");
@@ -54,6 +54,7 @@ const displayProduct = (product) => {
     }
 }
 
+//Affichage des options
 const createOption = (value) => {
   const _option = document.createElement('option');
   _option.value = value;
@@ -62,6 +63,7 @@ const createOption = (value) => {
   return _option;
 }
 
+//Création de l'élément pour affichage de l'image
 const createImage = (src, alt) => {
     const _image = document.createElement('img');
     _image.src = src;
@@ -70,6 +72,7 @@ const createImage = (src, alt) => {
     return _image;
 };
 
+//Affichage d'une erreur si aucune information n'est renvoyée
 const displayError = (err) => {
     alert("Produit indisponible")
 }
@@ -85,22 +88,27 @@ const addToCart = document.querySelector("#addToCart");
 const color = document.querySelector("#colors");
 const quantity = document.querySelector("#quantity");
 
+//Affichage d'une erreur si la couleur n'est pas valide
 const errorColor = (color) => {
     alert("La couleur que vous avez sélectionnée " + color + " est invalide. Veuillez sélectionner une couleur valide!");
 }
 
+//Affichage d'une erreur si la quantité n'est pas valide
 const errorQuantity = (quantity) => {
     alert("Veuillez sélectionner une quantité pour ce produit comprise entre 1 et 100. Vous aviez choisi " + quantity);
 }
 
+//Validation de la couleur
 const validateColor = (color) => {
   return productColors.indexOf(color) >= -1;
 };
 
+//Validation de la quantité
 const validateQuantity = (quantity) => {
   return quantity <= 100 && quantity > 0;
 }  
 
+//Ajout des produits au panier lors du clic sur le bouton
 addToCart.addEventListener('click', () => {  
     const product = {
         id: searchId,
