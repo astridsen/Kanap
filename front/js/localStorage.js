@@ -73,7 +73,7 @@ const getBasket = () => {
   if (basket === null) {
     basket = [];
     saveBasket(basket);
-  }
+  };
   
   return JSON.parse(basket);
 };
