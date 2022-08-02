@@ -23,6 +23,10 @@ const displayError = (error) => {
    console.error(error);
 }
 
+const validateQuantity = (quantity) => {
+   return quantity <= 100 && quantity > 0;
+};
+
 //Affichage des produits dans le panier
 const displayProduct = (product) => {
 
@@ -105,7 +109,14 @@ const displayProduct = (product) => {
       }
       if (!isProductInBasket(product)) {
          return;
-      } 
+      }
+      if (!validateQuantity(_productQuantity.value)) {
+        alert("Veuillez sélectionner une quantité pour ce produit comprise entre 1 et 100.");
+        const productQuantityAfterQuantityError = () => _productQuantity.value = product.quantity;
+        productQuantityAfterQuantityError();
+        persistProductInBasket(product);
+        location.reload();
+      }
       const basketProduct = getProductFromBasket(product);
       basketProduct.quantity = parseInt(_productQuantity.value, 10);
 
